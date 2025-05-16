@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gadget Listings</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./listing.css" />
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">GadgetStore</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end align-items-center" id="navbarNav">
+        <div class="d-flex align-items-center me-3" id="layoutToggleContainer" style="display: none;">
+          <label for="layoutSelect" class="form-label mb-0 me-2 fw-semibold">View:</label>
+          <select class="form-select form-select-sm" id="layoutSelect" aria-label="Select layout view" style="width: auto;">
+            <option value="grid">Grid</option>
+            <option value="list">List</option>
+          </select>
+        </div>
+        <ul class="navbar-nav" id="auth-buttons">
+          <!-- Auth buttons rendered by JS -->
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="mb-0">All Gadgets</h1>
+      <button id="addListingBtn" class="btn btn-primary d-none">Add Listing</button>
+    </div>
+
+    <div id="listingsGrid" class="row g-4">
+      <!-- Gadget listing cards inserted here by JS -->
+    </div>
+  </main>
+
+  <footer class="bg-dark text-light py-4 mt-auto">
+    <div class="container text-center small">
+      &copy; 2024 GadgetStore. All rights reserved.
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./auth.js"></script>
+  <script src="./listing.js"></script>
+  <script>
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.renderNavbar();
+      auth.listenAuthChanges(() => {
+        auth.renderNavbar();
+        listing.renderListings();
+        toggleLayoutDropdown();
+      });
+      listing.renderListings();
+      toggleLayoutDropdown();
+
+      // Show add listing button if logged in
+      const addBtn = document.getElementById('addListingBtn');
+      if (auth.isLoggedIn()) {
+        addBtn.classList.remove('d-none');
+        addBtn.onclick = () => {
+          window.location.href = 'add-listing.html';
+        };
+      } else {
+        addBtn.classList.add('d-none');
+      }
+
+      // Handle layout toggle
+      const layoutSelect = document.getElementById('layoutSelect');
+      layoutSelect.addEventListener('change', (e) => {
+        const layout = e.target.value;
+        localStorage.setItem('gadgetstore_layout', layout);
+        listing.updateLayout(layout);
+      });
+
+      // Set initial layout from localStorage
+      const savedLayout = localStorage.getItem('gadgetstore_layout') || 'grid';
+      layoutSelect.value = savedLayout;
+      listing.updateLayout(savedLayout);
+    });
+
+    function toggleLayoutDropdown() {
+      const layoutToggleContainer = document.getElementById('layoutToggleContainer');
+      if (auth.isLoggedIn()) {
+        layoutToggleContainer.style.display = 'flex';
+      } else {
+        layoutToggleContainer.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
